@@ -1,11 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Repository } from 'typeorm/repository/Repository';
+import { Role } from './entities/role.entity';
+import { InjectRepository } from '@nestjs/typeorm/dist/common/typeorm.decorators';
+import { Permission } from 'src/permissions/entities/permission.entity';
 
 @Injectable()
 export class RolesService {
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  constructor(
+    @InjectRepository(Role)
+    private readonly rolesRepo: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionsRepo: Repository<Permission>,
+  ) {}
+
+  async create(createRoleDto: CreateRoleDto) {
+    const permissions = await Promise.all(
+      createRoleDto.permissions.map((permissionKey) =>
+        this.permissionsRepo.findOne({ where: { key: permissionKey } }),
+      ),
+    );
+    const validPermissions = permissions.filter(
+      (p): p is Permission => p !== null,
+    );
+
+    const role = this.rolesRepo.create({
+      name: createRoleDto.name,
+      permissions: validPermissions,
+    });
+
+    return this.rolesRepo.save(role);
   }
 
   findAll() {

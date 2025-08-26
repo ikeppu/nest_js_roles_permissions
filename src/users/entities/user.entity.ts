@@ -19,7 +19,6 @@ export class User extends BaseEntity {
   })
   roles: Role[];
 
-  // Опционально — прямые пермиссии (поверх ролей)
   @ManyToMany(() => Permission, { eager: true })
   @JoinTable({
     name: 'user_permissions',

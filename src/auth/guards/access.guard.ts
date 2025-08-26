@@ -42,7 +42,7 @@ export class AccessGuard implements CanActivate {
         ? meta.perms.some((p) => hasPerm(have, p))
         : meta.perms.every((p) => hasPerm(have, p));
 
-    if (!ok) throw new ForbiddenException('Недостаточно пермиссий');
+    if (!ok) throw new ForbiddenException('Not enough permissions');
     return true;
   }
 }

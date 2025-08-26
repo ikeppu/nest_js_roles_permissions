@@ -9,19 +9,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 export class PermissionsService {
   constructor(
     @InjectRepository(Permission)
-    private readonly usersRepo: Repository<Permission>,
+    private readonly permissionsRepo: Repository<Permission>,
   ) {}
 
-  create(createPermissionDto: CreatePermissionDto) {
-    return 'This action adds a new permission';
+  async create(createPermissionDto: CreatePermissionDto) {
+    const entities = this.permissionsRepo.create(
+      createPermissionDto.permissions,
+    );
+    const response = await this.permissionsRepo.save(entities);
+
+    return response;
   }
 
   findAll() {
-    return `This action returns all permissions`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} permission`;
+    return this.permissionsRepo.find();
   }
 
   update(id: number, updatePermissionDto: UpdatePermissionDto) {
