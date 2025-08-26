@@ -8,7 +8,6 @@ import { Reflector } from '@nestjs/core';
 import { PermMode, PERMS_KEY } from '../decorators/access.decorators';
 
 function hasPerm(have: Set<string>, needed: string) {
-  // поддержка иерархии: '*' или 'users.*' покрывает 'users.read'
   if (have.has('*') || have.has(needed)) return true;
   const dot = needed.indexOf('.');
 
@@ -31,7 +30,7 @@ export class AccessGuard implements CanActivate {
         ctx.getHandler(),
       ) ?? this.reflector.get(PERMS_KEY, ctx.getClass());
 
-    if (!meta?.perms?.length) return true; // ничего не требуем
+    if (!meta?.perms?.length) return true;
 
     const req = ctx.switchToHttp().getRequest();
     const userPerms: string[] = req.user?.permissions ?? [];
@@ -43,6 +42,7 @@ export class AccessGuard implements CanActivate {
         : meta.perms.every((p) => hasPerm(have, p));
 
     if (!ok) throw new ForbiddenException('Not enough permissions');
+
     return true;
   }
 }
