@@ -1,0 +1,52 @@
+# Docker Compose file for Redis and PostgreSQL services
+# Version of the Docker Compose file format. '3.8' is a recent, stable version.
+version: '3.8'
+
+# Define the services (containers) that make up your application.
+services:
+  # The name of our service. You can call this whatever you like.
+  redis:
+    # Specifies the Docker image to use. 'redis:alpine' is a lightweight version of Redis.
+    image: redis:alpine
+    # Sets a friendly name for the container to make it easily identifiable.
+    container_name: my-redis-container
+    # The command that Redis will run when the container starts.
+    # 'redis-server --appendonly yes' enables AOF (Append Only File) persistence.
+    command: redis-server --appendonly yes
+    # Restarts the container automatically if it stops, unless it was manually stopped.
+    restart: always
+    # Maps a port on the host machine to a port in the container.
+    ports:
+      - "6379:6379"
+    # Defines volumes to persist data.
+    volumes:
+      # Creates a named volume 'redis-data' and maps it to '/data' inside the container.
+      - redis-data:/data
+
+  # PostgreSQL service definition
+  postgres:
+    # Use a specific version of the official PostgreSQL image for stability. 'alpine' is lightweight.
+    image: postgres:14-alpine
+    # A friendly name for the PostgreSQL container.
+    container_name: my-postgres-container
+    # Always restart the container if it stops.
+    restart: always
+    # Environment variables are used to configure the PostgreSQL instance.
+    # IMPORTANT: Change these default credentials for production environments.
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: s1mpl3p@ssw0rd
+      POSTGRES_DB: example_database
+    # Maps the host port 5432 to the container's port 5432.
+    ports:
+      - "5432:5432"
+    # Persists the PostgreSQL data.
+    volumes:
+      # Maps the 'postgres-data' named volume to the directory where PostgreSQL stores its data.
+      - postgres-data:/var/lib/postgresql/data
+
+# Top-level 'volumes' key to declare the named volumes used by the services.
+# Docker manages the lifecycle of these volumes.
+volumes:
+  redis-data:
+  postgres-data:
