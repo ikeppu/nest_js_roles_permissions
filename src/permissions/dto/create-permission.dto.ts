@@ -1,3 +1,3 @@
 export class CreatePermissionDto {
-  permissions: { key: string; title: string }[];
+  permissions: { code: string }[];
 }

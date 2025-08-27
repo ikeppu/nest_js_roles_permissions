@@ -1,3 +1,4 @@
+// src/auth/access.guard.ts
 import {
   CanActivate,
   ExecutionContext,
@@ -7,15 +8,18 @@ import {
 import { Reflector } from '@nestjs/core';
 import { PermMode, PERMS_KEY } from '../decorators/access.decorators';
 
-function hasPerm(have: Set<string>, needed: string) {
-  if (have.has('*') || have.has(needed)) return true;
-  const dot = needed.indexOf('.');
+// wildcard-поддержка с пробелами:
+// '*' — супер-права; '<prefix> *' — группа (например, 'User *' покрывает все User ...)
+function hasPerm(have: Set<string>, need: string) {
+  if (have.has('*') || have.has(need)) return true;
 
-  if (dot > 0) {
-    const prefix = needed.slice(0, dot) + '.*';
-    if (have.has(prefix)) return true;
+  // Пример группового правила: 'User *' покроет 'User can create'
+  // Берём первое слово как префикс:
+  const firstSpace = need.indexOf(' ');
+  if (firstSpace > 0) {
+    const group = need.slice(0, firstSpace) + ' *'; // e.g. 'User *'
+    if (have.has(group)) return true;
   }
-
   return false;
 }
 
@@ -25,24 +29,22 @@ export class AccessGuard implements CanActivate {
 
   canActivate(ctx: ExecutionContext): boolean {
     const meta =
-      this.reflector.get<{ mode: PermMode; perms: string[] }>(
+      this.reflector.get<{ mode: PermMode; codes: string[] }>(
         PERMS_KEY,
         ctx.getHandler(),
       ) ?? this.reflector.get(PERMS_KEY, ctx.getClass());
+    if (!meta?.codes?.length) return true;
 
-    if (!meta?.perms?.length) return true;
-
-    const req = ctx.switchToHttp().getRequest();
-    const userPerms: string[] = req.user?.permissions ?? [];
+    const userPerms: string[] =
+      ctx.switchToHttp().getRequest().user?.permissions ?? [];
     const have = new Set(userPerms);
 
     const ok =
       meta.mode === 'any'
-        ? meta.perms.some((p) => hasPerm(have, p))
-        : meta.perms.every((p) => hasPerm(have, p));
+        ? meta.codes.some((c) => hasPerm(have, c))
+        : meta.codes.every((c) => hasPerm(have, c));
 
-    if (!ok) throw new ForbiddenException('Not enough permissions');
-
+    if (!ok) throw new ForbiddenException('Недостаточно пермиссий');
     return true;
   }
 }

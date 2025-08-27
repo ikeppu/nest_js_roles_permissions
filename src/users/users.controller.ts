@@ -13,19 +13,20 @@ import { AccessGuard } from 'src/auth/guards/access.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { PermissionCode as PC } from 'src/permissions/constants/permission.codes';
 
 @UseGuards(JwtAuthGuard, AccessGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @RequireAny('users.read')
+  @RequireAny(PC.UserCanRead)
   @Get()
   list() {
     return 'ok';
   }
 
-  @RequireAny('users.create', 'users.invite')
+  @RequireAny(PC.UserCanCreate)
   @Post()
   create() {
     return 'created';

@@ -8,12 +8,12 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ nullable: true })
+  accessTokenHash?: string;
 
   @ManyToMany(() => Role, { eager: true })
   @JoinTable({
-    name: 'user_roles',
+    name: 'user_role',
     joinColumn: { name: 'user_id' },
     inverseJoinColumn: { name: 'role_id' },
   })
@@ -21,7 +21,7 @@ export class User extends BaseEntity {
 
   @ManyToMany(() => Permission, { eager: true })
   @JoinTable({
-    name: 'user_permissions',
+    name: 'user_permission',
     joinColumn: { name: 'user_id' },
     inverseJoinColumn: { name: 'permission_id' },
   })

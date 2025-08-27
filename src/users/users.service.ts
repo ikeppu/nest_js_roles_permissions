@@ -45,7 +45,7 @@ export class UsersService {
 
     if (updateUserDto.permissions) {
       const perms = await this.permissionsRepo.findBy({
-        key: In(updateUserDto.permissions),
+        code: In(updateUserDto.permissions),
       });
       user.directPermissions = perms;
     }

@@ -17,8 +17,8 @@ export class RolesService {
 
   async create(createRoleDto: CreateRoleDto) {
     const permissions = await Promise.all(
-      createRoleDto.permissions.map((permissionKey) =>
-        this.permissionsRepo.findOne({ where: { key: permissionKey } }),
+      createRoleDto.permissions.map((permissionCode) =>
+        this.permissionsRepo.findOne({ where: { code: permissionCode } }),
       ),
     );
     const validPermissions = permissions.filter(

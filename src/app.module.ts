@@ -7,6 +7,13 @@ import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, UsersModule, PermissionsModule, RolesModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    UsersModule,
+    PermissionsModule,
+    RolesModule,
+    AuthModule,
+  ],
 })
 export class AppModule {}
